@@ -742,10 +742,14 @@ defmodule KafkaEx.GenConsumer do
          ],
          state
        ) do
+
     state =
       case error_code do
         :offset_out_of_range ->
           handle_offset_out_of_range(state)
+
+        :parse_error ->
+          handle_parse_error(state)
 
         :no_error ->
           state
@@ -820,6 +824,12 @@ defmodule KafkaEx.GenConsumer do
       | current_offset: offset,
         committed_offset: offset,
         acked_offset: offset
+    }
+  end
+
+  defp handle_parse_error(%State{topic: topic, partition: partition, current_offset: offset} = state) do
+    %State{
+      state | current_offset: offset + 1, committed_offset: offset + 1, acked_offset: offset + 1
     }
   end
 

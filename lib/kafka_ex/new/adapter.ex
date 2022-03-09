@@ -547,6 +547,10 @@ defmodule KafkaEx.New.Adapter do
     {[], nil}
   end
 
+  defp kayrock_message_set_to_kafka_ex(:parse_error, _topic, _partition) do
+    {[], :parse_error}
+  end
+
   defp kayrock_message_set_to_kafka_ex(record_batches, topic, partition)
        when is_list(record_batches) do
     messages =

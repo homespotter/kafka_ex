@@ -103,6 +103,16 @@ defmodule KafkaEx.New.ClientCompatibility do
             {:ok, resp} ->
               {adapted_resp, last_offset} = Adapter.fetch_response(resp)
 
+              adapted_resp =
+                if last_offset == :parse_error do
+                  [%{partitions: [p]} = res] = adapted_resp
+                  p = %{p | error_code: :parse_error}
+
+                  [%KafkaEx.Protocol.Fetch.Response{res | partitions: [p]}]
+                else
+                  adapted_resp
+                end
+
               state_out =
                 if last_offset && fetch_request.auto_commit do
                   consumer_group = state.consumer_group_for_auto_commit
